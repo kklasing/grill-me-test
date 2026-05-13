@@ -31,4 +31,16 @@ describe("subscribe action (integration)", () => {
     expect(rows).toHaveLength(1);
     expect(rows[0]?.email).toBe(email);
   });
+
+  it("returns error state and does not persist a row given malformed FormData", async () => {
+    const formData = new FormData();
+    formData.append("email", "not-an-email");
+
+    const state = await subscribe(initialSubscribeState, formData);
+
+    expect(state).toEqual({ status: "error" });
+
+    const rows = await db.select().from(subscribers);
+    expect(rows).toHaveLength(0);
+  });
 });
